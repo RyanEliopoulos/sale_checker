@@ -164,11 +164,10 @@ class DBInterface:
         :return: (int: -1 upon failure else 0,
                  tuple:
                     failure:  Failure message
-                    else: List[{'alert_id': int,
+                    else:  ({'alert_id': int,
                                  'product_name': str,
                                  'upc': int,
-                                 'target_discount': int]
-
+                                 'target_discount': int)
         """
 
         sqlstring: str = """ SELECT * FROM alerts """
