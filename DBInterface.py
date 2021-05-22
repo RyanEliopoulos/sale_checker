@@ -55,7 +55,6 @@ class DBInterface:
         # INT for id field allows us to
         sqlstring: str = """ CREATE TABLE api_tokens (
                             id INT PRIMARY KEY,
-                            access_token STRING NOT NULL,
                             refresh_token STRING NOT NULL,
                             timestamp INTEGER NOT NULL) 
                             """
@@ -72,8 +71,7 @@ class DBInterface:
                  tuple: Failure message
                  OR
                  tuple:
-                    (str: access_token,
-                    str: refresh_token,
+                    (str: refresh_token,
                     int: unix_timestamp when tokens issued)
         """
         sqlstring: str = """ SELECT * FROM api_tokens
@@ -87,13 +85,11 @@ class DBInterface:
         resultrow: tuple = self.db_cursor.fetchone()
         if resultrow is None:
             return -1, ('No tokens in the database',)
-        access_token: str = resultrow[1]
-        refresh_token: str = resultrow[2]
-        timestamp: str = resultrow[3]
-        return 0, (access_token, refresh_token, timestamp)
+        refresh_token: str = resultrow[1]
+        timestamp: str = resultrow[2]
+        return 0, (refresh_token, timestamp)
 
-    def update_tokens(self, access_token: str,
-                      refresh_token: str,
+    def update_tokens(self, refresh_token: str,
                       unix_timestamp: str) -> tuple[int, str]:
         """
         Inserts/replaces the only row in the api_tokens table with updated tokens
@@ -119,12 +115,11 @@ class DBInterface:
             except sqlite3.Error:
                 return -1, 'Error deleting old tokens from db'
         # Inserting new token data
-        sqlstring = """ INSERT INTO api_tokens (id, access_token, refresh_token, timestamp)
-                        VALUES (?, ?, ?, ?)
+        sqlstring = """ INSERT INTO api_tokens (id, refresh_token, timestamp)
+                        VALUES (?, ?, ?)
                     """
         try:
             self.db_cursor.execute(sqlstring, (1,
-                                               access_token,
                                                refresh_token,
                                                unix_timestamp))
         except sqlite3.Error:
