@@ -40,10 +40,11 @@ class DBInterface:
         self.db_cursor.execute(sqlstring)
 
         # Creating table to house desired alerts
-        # INTEGER alertid is a shortcut for rowid. In other words, it will auto increment for us
+        # INTEGER alert_id is a shortcut for rowid. In other words, it will auto increment for us
         sqlstring: str = """ CREATE TABLE alerts (
-                            alertid INTEGER PRIMARY KEY,
+                            alert_id INTEGER PRIMARY KEY,
                             product_name STRING NOT NULL,
+                            upc INT NOT NULL,
                             target_discount INT NOT NULL)
                           """
         try:
@@ -108,13 +109,13 @@ class DBInterface:
             self.db_cursor.execute(sqlstring, (1,))
         except sqlite3.Error:
             return -1, 'Error reading from api_tokens table'
-        alertid: int = self.db_cursor.fetchone()
-        if alertid is not None:  # An existing entry to delete
+        alert_id: int = self.db_cursor.fetchone()
+        if alert_id is not None:  # An existing entry to delete
             sqlstring = """ DELETE FROM api_tokens
                             WHERE id = (?)
                         """
             try:
-                self.db_cursor.execute(sqlstring, alertid)
+                self.db_cursor.execute(sqlstring, alert_id)
             except sqlite3.Error:
                 return -1, 'Error deleting old tokens from db'
         # Inserting new token data
@@ -130,28 +131,29 @@ class DBInterface:
             return -1, 'Error inserting tokens into db'
         return 0, 'Success'
 
-    def add_alert(self, product_name: str, target_discount: int) -> tuple[int, str]:
+    def add_alert(self, product_name: str, upc: int, target_discount: int) -> tuple[int, str]:
         """
         Inserts the alert into the db
         :param product_name:
+        :param upc: Taken from the item page on the website. Unique item identifier
         :param target_discount:  percentage
         :return: (int: -1 upon failure else 0,
                   str: outcome details
         """
 
-        sqlstring: str = """ INSERT INTO alerts (product_name, target_discount)
-                             VALUES (?, ?)
+        sqlstring: str = """ INSERT INTO alerts (product_name, upc, target_discount)
+                             VALUES (?, ?, ?)
                          """
         try:
-            self.db_cursor.execute(sqlstring, (product_name, target_discount))
+            self.db_cursor.execute(sqlstring, (product_name, upc, target_discount))
         except sqlite3.Error:
             return -1, 'Failed to insert alert'
         return 0, 'Success'
 
-    def delete_alert(self, alertid: int) -> tuple[int, str]:
-        sqlstring: str = """ DELETE FROM alerts WHERE alertid = (?)"""
+    def delete_alert(self, alert_id: int) -> tuple[int, str]:
+        sqlstring: str = """ DELETE FROM alerts WHERE alert_id = (?)"""
         try:
-            self.db_cursor.execute(sqlstring, (alertid,))
+            self.db_cursor.execute(sqlstring, (alert_id,))
         except sqlite3.Error:
             return -1, 'Failed to delete alert'
         return 0, 'Success'
@@ -162,8 +164,9 @@ class DBInterface:
         :return: (int: -1 upon failure else 0,
                  tuple:
                     failure:  Failure message
-                    else: List[{'alertid': int,
+                    else: List[{'alert_id': int,
                                  'product_name': str,
+                                 'upc': int,
                                  'target_discount': int]
 
         """
@@ -177,9 +180,10 @@ class DBInterface:
         result_list = []
         for row in result_set:
             new_dict: dict = dict()
-            new_dict['alertid'] = row[0]
+            new_dict['alert_id'] = row[0]
             new_dict['product_name'] = row[1]
-            new_dict['target_discount'] = row[2]
+            new_dict['upc'] = row[2]
+            new_dict['target_discount'] = row[3]
             result_list.append(new_dict)
         return 0, tuple(result_list)
 
