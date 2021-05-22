@@ -96,7 +96,7 @@ class DBInterface:
                       refresh_token: str,
                       unix_timestamp: str) -> tuple[int, str]:
         """
-        Replaces the only row in the api_tokens table with updated tokens
+        Inserts/replaces the only row in the api_tokens table with updated tokens
         :return: (int: -1 if failure, else 0,
                  str: Success/failure message)
         """
