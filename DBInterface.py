@@ -67,7 +67,7 @@ class DBInterface:
         sqlstring: str = """ CREATE TABLE alerts (
                             alert_id INTEGER PRIMARY KEY,
                             product_name STRING NOT NULL,
-                            upc INT NOT NULL,
+                            upc STRING NOT NULL,
                             target_discount INT NOT NULL)
                           """
         try:
@@ -128,7 +128,7 @@ class DBInterface:
             self.db_cursor.execute(sqlstring, (1,))
         except sqlite3.Error:
             return -1, 'Error reading from api_tokens table'
-        row_data: int = self.db_cursor.fetchone()
+        row_data: list = self.db_cursor.fetchone()
         if row_data is not None:  # An existing entry to delete
             sqlstring = """ DELETE FROM api_tokens
                             WHERE id = (?)
@@ -136,7 +136,7 @@ class DBInterface:
             alert_id = row_data[0]
             try:
                 self.db_cursor.execute(sqlstring, (alert_id,))
-            except sqlite3.Error as e:
+            except sqlite3.Error:
                 return -1, 'Error deleting old tokens from db'
         # Inserting new token data
         sqlstring = """ INSERT INTO api_tokens (id, refresh_token, timestamp)
@@ -151,7 +151,7 @@ class DBInterface:
             return -1, 'Error inserting tokens into db'
         return 0, 'Success'
 
-    def add_alert(self, product_name: str, upc: int, target_discount: int) -> tuple[int, str]:
+    def add_alert(self, product_name: str, upc: str, target_discount: int) -> tuple[int, str]:
         """
         Inserts the alert into the db
         :param product_name:
@@ -188,7 +188,7 @@ class DBInterface:
                     failure:  Failure message
                     else:  ({'alert_id': int,
                                  'product_name': str,
-                                 'upc': int,
+                                 'upc': str,
                                  'target_discount': int)
         """
 
