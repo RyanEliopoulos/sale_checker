@@ -67,7 +67,7 @@ class DBInterface:
         sqlstring: str = """ CREATE TABLE alerts (
                             alert_id INTEGER PRIMARY KEY,
                             product_name STRING NOT NULL,
-                            upc STRING NOT NULL,
+                            upc TEXT NOT NULL,
                             target_discount INT NOT NULL)
                           """
         try:
@@ -160,7 +160,6 @@ class DBInterface:
         :return: (int: -1 upon failure else 0,
                   str: outcome details
         """
-
         sqlstring: str = """ INSERT INTO alerts (product_name, upc, target_discount)
                              VALUES (?, ?, ?)
                          """
