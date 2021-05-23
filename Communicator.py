@@ -16,7 +16,7 @@ class Communicator:
         # API context
         self.api_base: str = 'https://api.kroger.com/v1/'
         self.api_token: str = 'connect/oauth2/token'
-        self.location_id: str = '70100140'  # Highway 99 location
+        self.location_id: str = os.getenv('kroger_api_location_id')
         # App credentials
         self.client_id = os.getenv('kroger_app_client_id')
         self.client_secret = os.getenv('kroger_app_client_secret')
@@ -67,7 +67,7 @@ class Communicator:
             return False
         return True
 
-    def get_product_details(self, upc: str) -> tuple[int, tuple]:
+    def get_product_details(self, upc: int) -> tuple[int, tuple]:
         """
         Pulls product details associated with the given upc
         :return:
