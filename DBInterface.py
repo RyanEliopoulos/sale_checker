@@ -166,6 +166,7 @@ class DBInterface:
                          """
         try:
             self.db_cursor.execute(sqlstring, (product_name, upc, target_discount))
+            self.db_connection.commit()
         except sqlite3.Error:
             return -1, 'Failed to insert alert'
         return 0, 'Success'
