@@ -12,11 +12,16 @@ class DBInterface:
     def manual_control(self):
         """  For debugging
         """
-        sqlstring = """
-                        SELECT * FROM api_tokens 
-                    """
+        ...
 
-        self.db_cursor.execute(sqlstring)
+        sqlstring = """ SELECT * FROM api_tokens
+                    """
+        try:
+            self.db_cursor.execute(sqlstring)
+        except sqlite3.Error as e:
+            print(e)
+            exit(1)
+
         resultset = self.db_cursor.fetchall()
         print("Heres the result set")
         print(resultset)
@@ -24,6 +29,24 @@ class DBInterface:
             print(thing[0])
             print(thing[1])
             print(thing[2])
+
+        # sqlstring = """
+        #                 INSERT INTO api_tokens (refresh_token, timestamp)
+        #                 VALUES ('JQeftFe6QlkPiD0d5WPXKt04XgIrmpiabvAUIfg6', 1621713876.437711)
+        #             """
+        # try:
+        #     self.db_cursor.execute(sqlstring)
+        # except sqlite3.Error as e:
+        #     print(e)
+        #     exit(1)
+        #
+        # resultset = self.db_cursor.fetchall()
+        # print("Heres the result set")
+        # print(resultset)
+        # for thing in resultset:
+        #     print(thing[0])
+        #     print(thing[1])
+        #     print(thing[2])
 
     def seed_db(self) -> tuple[int, str]:
         """
@@ -56,7 +79,7 @@ class DBInterface:
         sqlstring: str = """ CREATE TABLE api_tokens (
                             id INT PRIMARY KEY,
                             refresh_token STRING NOT NULL,
-                            timestamp INTEGER NOT NULL) 
+                            timestamp REAL NOT NULL) 
                             """
         try:
             self.db_cursor.execute(sqlstring)
@@ -72,7 +95,7 @@ class DBInterface:
                  OR
                  tuple:
                     (str: refresh_token,
-                    int: unix_timestamp when tokens issued)
+                    float: unix_timestamp when tokens issued)
         """
         sqlstring: str = """ SELECT * FROM api_tokens
                              WHERE id = (?)
@@ -86,11 +109,11 @@ class DBInterface:
         if resultrow is None:
             return -1, ('No tokens in the database',)
         refresh_token: str = resultrow[1]
-        timestamp: str = resultrow[2]
+        timestamp: float = resultrow[2]
         return 0, (refresh_token, timestamp)
 
     def update_tokens(self, refresh_token: str,
-                      unix_timestamp: str) -> tuple[int, str]:
+                      unix_timestamp: float) -> tuple[int, str]:
         """
         Inserts/replaces the only row in the api_tokens table with updated tokens
         :return: (int: -1 if failure, else 0,
@@ -105,14 +128,15 @@ class DBInterface:
             self.db_cursor.execute(sqlstring, (1,))
         except sqlite3.Error:
             return -1, 'Error reading from api_tokens table'
-        alert_id: int = self.db_cursor.fetchone()
-        if alert_id is not None:  # An existing entry to delete
+        row_data: int = self.db_cursor.fetchone()
+        if row_data is not None:  # An existing entry to delete
             sqlstring = """ DELETE FROM api_tokens
                             WHERE id = (?)
                         """
+            alert_id = row_data[0]
             try:
-                self.db_cursor.execute(sqlstring, alert_id)
-            except sqlite3.Error:
+                self.db_cursor.execute(sqlstring, (alert_id,))
+            except sqlite3.Error as e:
                 return -1, 'Error deleting old tokens from db'
         # Inserting new token data
         sqlstring = """ INSERT INTO api_tokens (id, refresh_token, timestamp)
@@ -122,6 +146,7 @@ class DBInterface:
             self.db_cursor.execute(sqlstring, (1,
                                                refresh_token,
                                                unix_timestamp))
+            self.db_connection.commit()
         except sqlite3.Error:
             return -1, 'Error inserting tokens into db'
         return 0, 'Success'
@@ -149,6 +174,7 @@ class DBInterface:
         sqlstring: str = """ DELETE FROM alerts WHERE alert_id = (?)"""
         try:
             self.db_cursor.execute(sqlstring, (alert_id,))
+            self.db_connection.commit()
         except sqlite3.Error:
             return -1, 'Failed to delete alert'
         return 0, 'Success'
@@ -180,4 +206,3 @@ class DBInterface:
             new_dict['target_discount'] = row[3]
             result_list.append(new_dict)
         return 0, tuple(result_list)
-
