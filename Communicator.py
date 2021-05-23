@@ -67,10 +67,9 @@ class Communicator:
             return False
         return True
 
-    def get_product_details(self, upc: int) -> tuple[int, tuple]:
+    def get_product_details(self, upc: str) -> tuple[int, tuple]:
         """
         Pulls product details associated with the given upc
-        :return:
         """
         if not self.valid_token():
             self.token_refresh()
