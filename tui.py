@@ -27,13 +27,18 @@ class Tui:
                     print('  :::::::  ', end='')
                     print(alert['product_name'], end='')
                     print('  :::::::  ', end='')
-                    print(alert['target_discount'])
+                    print(alert['target_discount'], end='')
+                    print('%')
 
             print('\n\n')
-            print('[d]elete alert, [a]dd alert')
+            print('[d]elete alert, [a]dd alert, [q]uit')
             user_input = input()
             if user_input == 'a':  # Adding an alert
                 self._add_alert()
+            elif user_input == 'd':  # Deleting an alert
+                self._delete_alert()
+            elif user_input == 'q':
+                exit(0)
 
     def _add_alert(self):
         # Gathering UPC from user
@@ -94,3 +99,14 @@ class Tui:
         except ValueError:
             print('Input must be a 2-digit integer')
             return -1, 'Input must be a 2-digit integer'
+
+    def _delete_alert(self):
+        user_input = input('Which alert do you wish to delete?')
+        try:
+            cast_input = int(user_input)
+        except ValueError:
+            print('input must contain only int values')
+            return
+        ret: tuple = self.controller.delete_alert(cast_input)
+        print(ret[1])
+
