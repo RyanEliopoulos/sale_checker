@@ -1,5 +1,6 @@
 import Controller
 import decimal
+import datetime
 
 
 class Tui:
@@ -20,15 +21,19 @@ class Tui:
             if len(ret[1]) == 0:
                 print('No alerts are currently active')
             else:
-                print('alert_id :::: product_name :::::: target_discount ')
+                print('alert_id :::: product_name :::::: target_discount  ::::::: '
+                      'last_notified  ::::::::  last_discount_rate')
                 print('\n')
                 for alert in ret[1]:
                     print(alert['alert_id'], end='')
                     print('  :::::::  ', end='')
                     print(alert['product_name'], end='')
                     print('  :::::::  ', end='')
-                    print(alert['target_discount'], end='')
-                    print('%')
+                    print(alert['target_discount'], '%', sep='', end='')
+                    print('  :::::::  ', end='')
+                    print(datetime.datetime.fromtimestamp(alert['last_notified']), end='')
+                    print('  :::::::  ', end='')
+                    print(alert['last_discount_rate'], '%', sep='')
 
             print('\n\n')
             print('[d]elete alert, [a]dd alert, [q]uit')

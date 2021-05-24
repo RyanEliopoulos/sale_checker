@@ -64,11 +64,15 @@ class DBInterface:
 
         # Creating table to house desired alerts
         # INTEGER alert_id is a shortcut for rowid. In other words, it will auto increment for us
+        # last_notified: is a unix timestamp
+        # last_discount_rate: rate when last notification went out
         sqlstring: str = """ CREATE TABLE alerts (
                             alert_id INTEGER PRIMARY KEY,
-                            product_name STRING NOT NULL,
+                            product_name TEXT NOT NULL,
                             upc TEXT NOT NULL,
-                            target_discount INT NOT NULL)
+                            target_discount INT NOT NULL,
+                            last_notified REAL DEFAULT 0 NOT NULL,
+                            last_discount_rate INT DEFAULT 0 NOT NULL)
                           """
         try:
             self.db_cursor.execute(sqlstring)
@@ -170,6 +174,18 @@ class DBInterface:
             return -1, 'Failed to insert alert'
         return 0, 'Success'
 
+    def update_alert(self, alert_id, discount_rate: int, unix_timestamp: float) -> tuple[int, str]:
+        sqlstring = """ UPDATE alerts
+                        SET last_notified = (?), last_discount_rate = (?)
+                        WHERE alert_id = (?)
+                    """
+        try:
+            self.db_cursor.execute(sqlstring, (unix_timestamp, discount_rate, alert_id))
+            self.db_connection.commit()
+            return 0, 'Success'
+        except sqlite3.Error:
+            return -1, f'Failed to update alert {alert_id} in the DB'
+
     def delete_alert(self, alert_id: int) -> tuple[int, str]:
         sqlstring: str = """ DELETE FROM alerts WHERE alert_id = (?)"""
         try:
@@ -188,7 +204,9 @@ class DBInterface:
                     else:  ({'alert_id': int,
                                  'product_name': str,
                                  'upc': str,
-                                 'target_discount': int)
+                                 'target_discount': int,
+                                 'last_notified': float,
+                                 'last_discount_rate': int)
         """
 
         sqlstring: str = """ SELECT * FROM alerts """
@@ -204,5 +222,7 @@ class DBInterface:
             new_dict['product_name'] = row[1]
             new_dict['upc'] = row[2]
             new_dict['target_discount'] = row[3]
+            new_dict['last_notified'] = row[4]
+            new_dict['last_discount_rate'] = row[5]
             result_list.append(new_dict)
         return 0, tuple(result_list)

@@ -2,6 +2,7 @@ import DBInterface
 import Communicator
 import decimal
 import Notifier
+import datetime
 
 
 class Controller:
@@ -48,6 +49,10 @@ class Controller:
         return ret
 
     def check_sales(self):
+        """
+        Checks active alerts against current promo prices.
+        Sends notifications if criterion met.
+        """
         ret: tuple = self.db_interface.retrieve_alerts()
         if ret[0] == -1:
             print(ret)
@@ -76,6 +81,13 @@ class Controller:
                 if scaled_discount >= target_discount:
                     print(f'{product_name} meets or exceeds its target of {target_discount}')
                     Notifier.Notifier.send_notification(f'{product_name} is {scaled_discount}% off at Fred Meyer')
+                    # Getting timestamp for the db.
+                    timestamp: float = datetime.datetime.now().timestamp()
+                    update_ret = self.db_interface.update_alert(alert['alert_id'], int(scaled_discount), timestamp)
+                    if update_ret[0] == -1:
+                        ...
+                        # @TODO log failures
+                    print(update_ret)
                 else:
                     print(f'{product_name} does not meet its target of {target_discount}')
 
