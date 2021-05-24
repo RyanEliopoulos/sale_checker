@@ -53,12 +53,13 @@ class Controller:
         Checks active alerts against current promo prices.
         Sends notifications if criterion met.
         """
+        # @TODO find a more appropriate place for this functionality
+        notification_interval: int = 86400 * 7  # Days in seconds
         ret: tuple = self.db_interface.retrieve_alerts()
         if ret[0] == -1:
             print(ret)
             exit(1)
         for alert in ret[1]:
-            print(alert)
             target_discount: int = alert['target_discount']
             upc: str = alert['upc']
             product_ret: tuple = self.get_product_details(upc)
@@ -78,18 +79,33 @@ class Controller:
                 discount: decimal.Decimal = price_diff / regular_price
                 scaled_discount: decimal.Decimal = (discount * 100).quantize(decimal.Decimal('1.00'))
                 print(f'{product_name} is on a {scaled_discount} percent sale')
-                if scaled_discount >= target_discount:
+
+                notification_due: bool = False
+                now: float = datetime.datetime.now().timestamp()
+                decision: str = ''
+                if alert['last_notified'] < (now - notification_interval):  # Been long enough since last notification
+                    if scaled_discount >= target_discount:
+                        notification_due = True
+                        decision = 'Notifying: Sufficient discount + delay time exceeded'
+                    else:
+                        decision = 'Not notifying: Insufficient discount + delay time exceeded'
+                elif scaled_discount > alert['last_discount_rate']:
+                    notification_due = True
+                    decision = 'Notifying: Discount improved. Delay time not meet'
+                else:
+                    decision = 'Nothing new to report'
+
+                print('\t' + decision)
+                if notification_due:
                     print(f'{product_name} meets or exceeds its target of {target_discount}')
+
                     Notifier.Notifier.send_notification(f'{product_name} is {scaled_discount}% off at Fred Meyer')
-                    # Getting timestamp for the db.
                     timestamp: float = datetime.datetime.now().timestamp()
-                    update_ret = self.db_interface.update_alert(alert['alert_id'], int(scaled_discount), timestamp)
+                    update_ret = self.db_interface.update_alert(alert['alert_id'], float(scaled_discount), timestamp)
                     if update_ret[0] == -1:
                         ...
                         # @TODO log failures
                     print(update_ret)
-                else:
-                    print(f'{product_name} does not meet its target of {target_discount}')
 
     def new_alert(self, product_name: str, upc: str, target_discount: int) -> tuple[int, str]:
         ret = self.db_interface.add_alert(product_name, upc, target_discount)

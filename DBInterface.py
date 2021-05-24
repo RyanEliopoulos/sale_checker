@@ -72,7 +72,7 @@ class DBInterface:
                             upc TEXT NOT NULL,
                             target_discount INT NOT NULL,
                             last_notified REAL DEFAULT 0 NOT NULL,
-                            last_discount_rate INT DEFAULT 0 NOT NULL)
+                            last_discount_rate REAL DEFAULT 0 NOT NULL)
                           """
         try:
             self.db_cursor.execute(sqlstring)
@@ -174,7 +174,7 @@ class DBInterface:
             return -1, 'Failed to insert alert'
         return 0, 'Success'
 
-    def update_alert(self, alert_id, discount_rate: int, unix_timestamp: float) -> tuple[int, str]:
+    def update_alert(self, alert_id, discount_rate: float, unix_timestamp: float) -> tuple[int, str]:
         sqlstring = """ UPDATE alerts
                         SET last_notified = (?), last_discount_rate = (?)
                         WHERE alert_id = (?)
@@ -206,7 +206,7 @@ class DBInterface:
                                  'upc': str,
                                  'target_discount': int,
                                  'last_notified': float,
-                                 'last_discount_rate': int)
+                                 'last_discount_rate': float)
         """
 
         sqlstring: str = """ SELECT * FROM alerts """
