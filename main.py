@@ -10,9 +10,10 @@ import argparse
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--interface', help='interactive alert management')
+    parser.add_argument('--interface', help='interactive alert management',
+                        action='store_true')
     args = parser.parse_args()
-    controller = Controller.Controller('test.db')
+    controller = Controller.Controller('alerts.db')
     if args.interface:
         import tui
         tui = tui.Tui(controller)
