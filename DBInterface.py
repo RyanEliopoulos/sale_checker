@@ -30,24 +30,6 @@ class DBInterface:
             print(thing[1])
             print(thing[2])
 
-        # sqlstring = """
-        #                 INSERT INTO api_tokens (refresh_token, timestamp)
-        #                 VALUES ('JQeftFe6QlkPiD0d5WPXKt04XgIrmpiabvAUIfg6', 1621713876.437711)
-        #             """
-        # try:
-        #     self.db_cursor.execute(sqlstring)
-        # except sqlite3.Error as e:
-        #     print(e)
-        #     exit(1)
-        #
-        # resultset = self.db_cursor.fetchall()
-        # print("Heres the result set")
-        # print(resultset)
-        # for thing in resultset:
-        #     print(thing[0])
-        #     print(thing[1])
-        #     print(thing[2])
-
     def seed_db(self) -> tuple[int, str]:
         """
         Initializes an empty database with appropriate tables.
