@@ -12,8 +12,6 @@ class DBInterface:
     def manual_control(self):
         """  For debugging
         """
-        ...
-
         sqlstring = """ SELECT * FROM api_tokens
                     """
         try:
