@@ -1,5 +1,7 @@
 import DBInterface
 import Communicator
+import decimal
+import Notifier
 
 
 class Controller:
@@ -44,6 +46,38 @@ class Controller:
         ret: tuple = self.communicator.get_product_details(upc)
         self._commit_new_token()
         return ret
+
+    def check_sales(self):
+        ret: tuple = self.db_interface.retrieve_alerts()
+        if ret[0] == -1:
+            print(ret)
+            exit(1)
+        for alert in ret[1]:
+            print(alert)
+            target_discount: int = alert['target_discount']
+            upc: str = alert['upc']
+            product_ret: tuple = self.get_product_details(upc)
+            if product_ret[0] == -1:
+                ...
+                # @TODO log failures
+                print(product_ret)
+            else:
+                data: dict = product_ret[1][0]['data']
+                product_name: str = data['description']
+                regular_price: decimal.Decimal = decimal.Decimal(data['items'][0]['price']['regular'])
+                sale_price: decimal.Decimal = decimal.Decimal(data['items'][0]['price']['promo'])
+                if sale_price == 0:  # No promo running
+                    print(f'No promo for: {product_name}')
+                    continue
+                price_diff: decimal.Decimal = regular_price - sale_price
+                discount: decimal.Decimal = price_diff / regular_price
+                scaled_discount: decimal.Decimal = (discount * 100).quantize(decimal.Decimal('1.00'))
+                print(f'{product_name} is on a {scaled_discount} percent sale')
+                if scaled_discount >= target_discount:
+                    print(f'{product_name} meets or exceeds its target of {target_discount}')
+                    Notifier.Notifier.send_notification(f'{product_name} is {scaled_discount}% off at Fred Meyer')
+                else:
+                    print(f'{product_name} does not meet its target of {target_discount}')
 
     def new_alert(self, product_name: str, upc: str, target_discount: int) -> tuple[int, str]:
         ret = self.db_interface.add_alert(product_name, upc, target_discount)
