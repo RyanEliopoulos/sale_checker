@@ -3,6 +3,7 @@ import Communicator
 import decimal
 import Notifier
 import datetime
+import Logger
 
 
 class Controller:
@@ -37,7 +38,7 @@ class Controller:
             self.communicator.new_refresh_token = False
             ret = self.db_interface.update_tokens(new_token, new_timestamp)
             if ret[0] == -1:
-                # @TODO Somehow alert myself that the program has failed to refresh the token.
+                Logger.Logger.log(ret[1])
                 print(ret)
 
     def get_product_details(self, upc: str) -> tuple[int, tuple]:
@@ -64,8 +65,8 @@ class Controller:
             upc: str = alert['upc']
             product_ret: tuple = self.get_product_details(upc)
             if product_ret[0] == -1:
-                ...
-                # @TODO log failures
+                # Documenting failures
+                Logger.Logger.log(product_ret[1][0])
                 print(product_ret)
             else:
                 data: dict = product_ret[1][0]['data']
@@ -98,17 +99,15 @@ class Controller:
                     decision = 'Notifying: Discount improved. Delay time not meet'
                 else:
                     decision = 'Nothing new to report'
-
                 print('\t' + decision)
                 if notification_due:
                     print(f'{product_name} meets or exceeds its target of {target_discount}')
-
                     Notifier.Notifier.send_notification(f'{product_name} is {scaled_discount}% off at Fred Meyer')
                     timestamp: float = datetime.datetime.now().timestamp()
                     update_ret = self.db_interface.update_alert(alert['alert_id'], float(scaled_discount), timestamp)
                     if update_ret[0] == -1:
-                        ...
-                        # @TODO log failures
+                        # Logging failure
+                        Logger.Logger.log(update_ret[1])
                     print(update_ret)
 
     def new_alert(self, product_name: str, upc: str, target_discount: int) -> tuple[int, str]:
