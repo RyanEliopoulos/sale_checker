@@ -89,7 +89,11 @@ class Controller:
                         decision = 'Notifying: Sufficient discount + delay time exceeded'
                     else:
                         decision = 'Not notifying: Insufficient discount + delay time exceeded'
-                elif scaled_discount > alert['last_discount_rate']:
+                # Must quantize otherwise something extra is in there.
+                # Somehow 33.36 was > 33.36 before adding the quantize.
+                elif scaled_discount > decimal.Decimal(alert['last_discount_rate']).quantize(decimal.Decimal('1.00')):
+                    last_discount_rate = alert['last_discount_rate']
+                    print(f'scaled_discount: {scaled_discount}, last_discount_rate: {last_discount_rate}')
                     notification_due = True
                     decision = 'Notifying: Discount improved. Delay time not meet'
                 else:
