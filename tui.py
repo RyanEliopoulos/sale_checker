@@ -5,7 +5,7 @@ import datetime
 
 class Tui:
     """
-    Tui will be an optional switch. Otherwise, cron mode by default.
+    Tui is an optional switch.
     """
 
     def __init__(self, controller: Controller.Controller):
@@ -46,6 +46,7 @@ class Tui:
                 exit(0)
 
     def _add_alert(self):
+        # @TODO Change ret[0]==0 checks to ==-1, then handle failure cases.
         # Gathering UPC from user
         ret: tuple = self._input_upc()
         if ret[0] == 0:  # Valid UPC
