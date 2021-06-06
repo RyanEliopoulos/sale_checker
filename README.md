@@ -1,11 +1,12 @@
 <b>Required environment variables</b>
 <br><br>
 API values
-* kroger_api_location_id
-* kroger_app_client_id
-* kroger_app_client_secret
+* kroger_api_location_id: Use the [Locations](https://developer.kroger.com/reference/#tag/Locations) endpoint to locate the desired store.
+* kroger_app_client_id: [Register an app](https://developer.kroger.com/)
+* kroger_app_client_secret: [Register an app](https://developer.kroger.com/)
 
-Communication details
-* ip_alert_email
-* ip_alert_email_pw
-* sale_checker_recipients (semi-colon delineated field of email addresses)
+Communication details<br>
+Uses Google's SMTP work flow to send an email to each
+* ip_alert_email: Gmail account to send emails from e.g. example@gmail.com
+* ip_alert_email_pw: A special password for non-humans.  Google Account -> Security -> App passwords
+* sale_checker_recipients: semi-colon delineated field of email addresses
