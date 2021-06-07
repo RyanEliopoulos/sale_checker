@@ -1,17 +1,17 @@
 <h2>Use</h2>
 Create a watchlist of items to monitor for sales. Because the program is intended to be a schduled task, the default
 invocation with no parameters is not interactive. Every item on the watch list is price checked. All items meeting
-the criteria are forwarded on to the recipient list (see: communication details).
+the criteria are forwarded on to the recipient list (see: communication details). An email alert is sent if
+the threshold is met and: 
+
+1) It's been at least 7 days since the item triggered an alert; or 
+2) The sale price has gotten even better
 <br><br>
 
 Invoking the program with the --interface switch provides a TUI for managing the watch list. Items are added using
-their UPC (available on Kroger's websites) and specifying a sale threshold as a percentage. An email alert is sent if
-the threshold is met and: 
+their UPC (available on Kroger's websites) and specifying a sale threshold as a percentage. 
 
-1) It's been at least 7 days since the item triggered an alert, or
-2) The sale price has gotten even better
-
-
+![screenshot](./other/sale_checker.png)
 
 <h2>Required Environment Variables</h2>
 
