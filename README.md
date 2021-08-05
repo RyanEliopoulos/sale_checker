@@ -18,8 +18,8 @@ their UPC (available on Kroger's websites) and specifying a sale threshold as a 
 <h3>API values</h3>
 
 * <b>kroger_api_location_id</b>: Use the [Locations](https://developer.kroger.com/reference/#tag/Locations) endpoint to locate the desired store.
-* <b>kroger_app_client_id</b>: [Register an app](https://developer.kroger.com/)
-* <b>kroger_app_client_secret</b>: [Register an app](https://developer.kroger.com/)
+* <b>sale_checker_client_id</b>: [Register an app](https://developer.kroger.com/)
+* <b>sale_checker_client_secret</b>: [Register an app](https://developer.kroger.com/)
 
 <h3>Communication details</h3>
 Uses Google's SMTP work flow for sending alert emails
