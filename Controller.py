@@ -4,6 +4,7 @@ import decimal
 import Notifier
 import datetime
 import Logger
+from typing import Tuple
 
 
 class Controller:
@@ -41,7 +42,7 @@ class Controller:
                 Logger.Logger.log(ret[1])
                 print(ret)
 
-    def get_product_details(self, upc: str) -> tuple[int, tuple]:
+    def get_product_details(self, upc: str) -> Tuple[int, tuple]:
         """
         Pulls item details. Updates database with new token, if applicable
         """
@@ -109,13 +110,15 @@ class Controller:
                         # Logging failure
                         Logger.Logger.log(update_ret[1])
                     print(update_ret)
+                else:
+                    Logger.Logger.log(f'No notification for {product_name} at {scaled_discount}% off')
 
-    def new_alert(self, product_name: str, upc: str, target_discount: int) -> tuple[int, str]:
+    def new_alert(self, product_name: str, upc: str, target_discount: int) -> Tuple[int, str]:
         ret = self.db_interface.add_alert(product_name, upc, target_discount)
         return ret
 
-    def delete_alert(self, alert_id: int) -> tuple[int, str]:
+    def delete_alert(self, alert_id: int) -> Tuple[int, str]:
         return self.db_interface.delete_alert(alert_id)
 
-    def get_alerts(self) -> tuple[int, tuple]:
+    def get_alerts(self) -> Tuple[int, tuple]:
         return self.db_interface.retrieve_alerts()

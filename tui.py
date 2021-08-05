@@ -2,6 +2,8 @@ import Controller
 import decimal
 import datetime
 
+from typing import Tuple
+
 
 class Tui:
     """
@@ -61,11 +63,13 @@ class Tui:
                     data: dict = ret[1][0]['data']
                     product_name: str = data['description']
                     product_price: decimal.Decimal = decimal.Decimal(data['items'][0]['price']['regular'])
+                    product_price = product_price.quantize(decimal.Decimal('1.00'))
                     target_price: decimal.Decimal = product_price * (1 - (target_discount/100))
+                    target_price = target_price.quantize(decimal.Decimal('1.00'))
                     print(f'{product_name} typically at {product_price} should alert when the promo price is '
-                          f'{target_price}?')
+                          f'{target_price} or better?')
                     while True:
-                        user_input: str = input('y/n')
+                        user_input: str = input('y/n\n')
                         if user_input == 'y':
                             ret = self.controller.new_alert(product_name, new_upc, int(target_discount))
                             print(ret[1])
@@ -73,13 +77,13 @@ class Tui:
                         elif user_input == 'n':
                             break
 
-    def _input_upc(self) -> tuple[int, str]:
+    def _input_upc(self) -> Tuple[int, str]:
         """
         Error checked fnx for getting the 13-digit UPC from the user.
         Caller should cast to int upon success.
         """
         try:
-            user_input = input('Enter the upc')
+            user_input = input('Enter the upc\n')
             if len(user_input) != 13:
                 print(f'UPC must be 13 characters. This one is {len(user_input)}')
                 return -1, 'UPC wrong length'
@@ -89,12 +93,12 @@ class Tui:
             print('Input contain non-integer values')
             return -1, 'Contains non-integer values'
 
-    def _input_target_discount(self) -> tuple[int, str]:
+    def _input_target_discount(self) -> Tuple[int, str]:
         """
         Error checked fnx for getting a 2-digit int from the user.
         Caller should cast to int upon success.
         """
-        user_input = input('Whats the targe discount rate? Must be 1 or 2 digit integer.')
+        user_input = input('Whats the target discount rate? Must be 1 or 2 digit integer.\n')
         if len(user_input) < 1 or len(user_input) > 2:
             print('Invalid string length')
             return -1, 'Invalid string length'
@@ -106,7 +110,7 @@ class Tui:
             return -1, 'Input must be a 2-digit integer'
 
     def _delete_alert(self):
-        user_input = input('Which alert do you wish to delete?')
+        user_input = input('Which alert do you wish to delete?\n')
         try:
             cast_input = int(user_input)
         except ValueError:

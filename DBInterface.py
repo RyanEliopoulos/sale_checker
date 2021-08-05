@@ -1,4 +1,5 @@
 import sqlite3
+from typing import Tuple
 
 
 class DBInterface:
@@ -12,14 +13,20 @@ class DBInterface:
     def manual_control(self):
         """  For debugging
         """
-        sqlstring = """ SELECT * FROM api_tokens
+        #sqlstring = """ UPDATE api_tokens
+        #                SET refresh_token = 'Z2kPwtL75H6zatZO6MIkMGK30Nc6qH1wRVbE3FWV'
+                        #WHERE id = 1
+                    #"""
+
+        sqlstring = """ SELECT *
+                        FROM api_tokens
                     """
         try:
             self.db_cursor.execute(sqlstring)
         except sqlite3.Error as e:
             print(e)
             exit(1)
-
+        #self.db_connection.commit()
         resultset = self.db_cursor.fetchall()
         print("Heres the result set")
         print(resultset)
@@ -28,7 +35,7 @@ class DBInterface:
             print(thing[1])
             print(thing[2])
 
-    def seed_db(self) -> tuple[int, str]:
+    def seed_db(self) -> Tuple[int, str]:
         """
         Initializes an empty database with appropriate tables.
         Drops tables if they already exist.
@@ -71,7 +78,7 @@ class DBInterface:
             return -1, 'Failed to create alert table'
         return 0, 'Success'
 
-    def retrieve_tokens(self) -> tuple[int, tuple]:
+    def retrieve_tokens(self) -> Tuple[int, tuple]:
         """
         Pulls api tokens
         :return: (int: -1 upon failure else 0,
@@ -97,7 +104,7 @@ class DBInterface:
         return 0, (refresh_token, timestamp)
 
     def update_tokens(self, refresh_token: str,
-                      unix_timestamp: float) -> tuple[int, str]:
+                      unix_timestamp: float) -> Tuple[int, str]:
         """
         Inserts/replaces the only row in the api_tokens table with updated tokens
         :return: (int: -1 if failure, else 0,
@@ -135,7 +142,7 @@ class DBInterface:
             return -1, 'Error inserting tokens into db'
         return 0, 'Success'
 
-    def add_alert(self, product_name: str, upc: str, target_discount: int) -> tuple[int, str]:
+    def add_alert(self, product_name: str, upc: str, target_discount: int) -> Tuple[int, str]:
         """
         Inserts the alert into the db
         :param product_name:
@@ -154,7 +161,7 @@ class DBInterface:
             return -1, 'Failed to insert alert'
         return 0, 'Success'
 
-    def update_alert(self, alert_id, discount_rate: float, unix_timestamp: float) -> tuple[int, str]:
+    def update_alert(self, alert_id, discount_rate: float, unix_timestamp: float) -> Tuple[int, str]:
         sqlstring = """ UPDATE alerts
                         SET last_notified = (?), last_discount_rate = (?)
                         WHERE alert_id = (?)
@@ -166,7 +173,7 @@ class DBInterface:
         except sqlite3.Error:
             return -1, f'Failed to update alert {alert_id} in the DB'
 
-    def delete_alert(self, alert_id: int) -> tuple[int, str]:
+    def delete_alert(self, alert_id: int) -> Tuple[int, str]:
         sqlstring: str = """ DELETE FROM alerts WHERE alert_id = (?)"""
         try:
             self.db_cursor.execute(sqlstring, (alert_id,))
@@ -175,7 +182,7 @@ class DBInterface:
             return -1, 'Failed to delete alert'
         return 0, 'Success'
 
-    def retrieve_alerts(self) -> tuple[int, tuple]:
+    def retrieve_alerts(self) -> Tuple[int, tuple]:
         """
         Pulls all rows from the alerts table
         :return: (int: -1 upon failure else 0,

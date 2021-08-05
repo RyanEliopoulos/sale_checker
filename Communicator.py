@@ -2,6 +2,7 @@ import requests
 import os
 import datetime
 import urllib.parse
+from typing import Tuple
 
 
 class Communicator:
@@ -18,8 +19,8 @@ class Communicator:
         self.api_token: str = 'connect/oauth2/token'
         self.location_id: str = os.getenv('kroger_api_location_id')
         # App credentials
-        self.client_id = os.getenv('kroger_app_client_id')
-        self.client_secret = os.getenv('kroger_app_client_secret')
+        self.client_id = os.getenv('sale_checker_client_id')
+        self.client_secret = os.getenv('sale_checker_client_secret')
         # Token vars
         self.refresh_token: str = refresh_token
         self.refresh_token_timestamp: float = refresh_token_timestamp
@@ -67,7 +68,7 @@ class Communicator:
             return False
         return True
 
-    def get_product_details(self, upc: str) -> tuple[int, tuple]:
+    def get_product_details(self, upc: str) -> Tuple[int, tuple]:
         """
         Pulls product details associated with the given upc
         """
